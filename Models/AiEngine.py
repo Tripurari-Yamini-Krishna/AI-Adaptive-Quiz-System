@@ -1,6 +1,6 @@
 from google import genai
 from dotenv import load_dotenv
-from QuestionBank.QuestionManager import (
+from Backend.QuestionManager import (
     SaveQuestion,
     GetRandomQuestion
 )

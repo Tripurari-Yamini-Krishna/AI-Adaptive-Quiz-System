@@ -1,6 +1,6 @@
 from Models.AiEngine import GenerateQuestion
 from Models.ExplanationEngine import GenerateExplanation
-from Database.PerformanceTracker import SavePerformance
+from Reports.PerformanceTracker import SavePerformance
 from Reports.AnalyticsDashboard import GenerateDashboard
 
 
@@ -134,4 +134,3 @@ def StartQuiz():
 
     GenerateDashboard()
 
-    
