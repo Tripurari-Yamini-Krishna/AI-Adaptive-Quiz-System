@@ -1,0 +1,67 @@
+[
+    {
+        "Topic": "Python",
+        "Difficulty": "Easy",
+        "Question": "Which of the following functions is used to print output to the console in Python?",
+        "Options": {
+            "A": "display()",
+            "B": "print()",
+            "C": "output()",
+            "D": "show()"
+        },
+        "CorrectAnswer": "B",
+        "Explanation": "In Python, the built-in `print()` function is used to output text or other values to the standard output (usually the console or terminal)."
+    },
+    {
+        "Topic": "Python",
+        "Difficulty": "Easy",
+        "Question": "Which function is commonly used to display output to the console in Python?",
+        "Options": {
+            "A": "input()",
+            "B": "display()",
+            "C": "print()",
+            "D": "show()"
+        },
+        "CorrectAnswer": "C",
+        "Explanation": "The `print()` function is the standard and most common way to output text, variables, or other information to the console or standard output in Python. `input()` is used for getting user input, while `display()` and `show()` are not standard built-in functions for this purpose."
+    },
+    {
+        "Topic": "Python",
+        "Difficulty": "Easy",
+        "Question": "What is the correct way to assign the integer value `10` to a variable named `my_number` in Python?",
+        "Options": {
+            "A": "my_number == 10",
+            "B": "my_number = 10",
+            "C": "assign my_number = 10",
+            "D": "10 -> my_number"
+        },
+        "CorrectAnswer": "B",
+        "Explanation": "In Python, the single equals sign (`=`) is used for variable assignment, meaning it assigns the value on the right to the variable on the left. The double equals sign (`==`) is used for comparison."
+    },
+    {
+        "Topic": "Python",
+        "Difficulty": "Easy",
+        "Question": "What will be the output of the following Python code?\n\npython\nprint(\"Hello, Python!\")\n",
+        "Options": {
+            "A": "Hello, Python!",
+            "B": "\"Hello, Python!\"",
+            "C": "Error",
+            "D": "print(\"Hello, Python!\")"
+        },
+        "CorrectAnswer": "A",
+        "Explanation": "The `print()` function in Python displays the specified message to the console. When a string is passed to `print()`, its content is output without the surrounding quotation marks."
+    },
+    {
+        "Topic": "Python",
+        "Difficulty": "Easy",
+        "Question": "Which keyword is used to define a function in Python?",
+        "Options": {
+            "A": "function",
+            "B": "def",
+            "C": "func",
+            "D": "define"
+        },
+        "CorrectAnswer": "B",
+        "Explanation": "In Python, the `def` keyword is used to define a new function. For example, `def my_function():` creates a function named `my_function`."
+    }
+]
