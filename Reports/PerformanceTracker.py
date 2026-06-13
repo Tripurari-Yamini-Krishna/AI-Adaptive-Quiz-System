@@ -1,20 +1,41 @@
 import json
-from datetime import datetime
+import os
 
-def SavePerformance(Topic, Score, TotalQuestions, Percentage):
-    FilePath = "Reports/PerformanceData.json"
-    try:
+FilePath = "Database/PerformanceData.json"
+
+def SavePerformance(
+    Topic,
+    Score,
+    TotalQuestions,
+    Percentage
+):
+
+    PerformanceData = []
+
+    if os.path.exists(FilePath):
+
         with open(FilePath, "r") as File:
-            PerformanceData = json.load(File)
-    except:
-        PerformanceData = []
-    PerformanceData.append({
+
+            try:
+
+                PerformanceData = json.load(File)
+
+            except:
+
+                PerformanceData = []
+
+    AttemptData = {
         "Topic": Topic,
         "Score": Score,
         "TotalQuestions": TotalQuestions,
-        "Percentage": Percentage,
-        "Date": str(datetime.now())
-    })
+        "Percentage": Percentage
+    }
+
+    PerformanceData.append(AttemptData)
+
     with open(FilePath, "w") as File:
+
         json.dump(PerformanceData, File, indent=4)
-        
+
+    print("\nPerformance Saved Successfully")
+
