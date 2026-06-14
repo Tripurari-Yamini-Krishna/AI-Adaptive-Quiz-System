@@ -1,12 +1,13 @@
 from google import genai
 from dotenv import load_dotenv
+
 from Backend.QuestionManager import (
     SaveQuestion,
     GetRandomQuestion
 )
 
 import os
-import random
+import json
 
 load_dotenv()
 
@@ -15,36 +16,52 @@ Client = genai.Client(
 )
 
 
-def GenerateQuestion(Topic, Difficulty):
+def GenerateQuestion(
+    Topic,
+    Difficulty,
+    AskedQuestions=[]
+):
 
-    SavedQuestion = GetRandomQuestion(Topic, Difficulty)
+    SavedQuestion = GetRandomQuestion(
+        Topic,
+        Difficulty
+    )
 
-    if SavedQuestion is not None:
+    if (
+        SavedQuestion is not None
+        and
+        SavedQuestion["Question"]
+        not in AskedQuestions
+    ):
 
-        print("\nLoaded Question From Question Bank 📚")
+        print(
+            "\nLoaded Question From Question Bank 📚"
+        )
 
         return SavedQuestion
 
     Prompt = f"""
-    Generate 1 UNIQUE multiple choice question on {Topic}.
+    Generate 1 UNIQUE multiple choice question.
 
-    Difficulty Level: {Difficulty}
+    Topic: {Topic}
 
-    IMPORTANT:
-    - Make the question different every time
-    - Avoid repeating common questions
-    - Keep it beginner friendly if easy
-    - Return ONLY in this exact format
+    Difficulty: {Difficulty}
 
-    Question:
-    Options:
-    A)
-    B)
-    C)
-    D)
+    Return ONLY valid JSON.
 
-    Correct Answer:
-    Explanation:
+    Example format:
+
+    {{
+        "Question": "What is Python?",
+        "Options": {{
+            "A": "A snake",
+            "B": "A programming language",
+            "C": "A game",
+            "D": "A browser"
+        }},
+        "CorrectAnswer": "B",
+        "Explanation": "Python is a programming language."
+    }}
     """
 
     Response = Client.models.generate_content(
@@ -52,67 +69,54 @@ def GenerateQuestion(Topic, Difficulty):
         contents=Prompt
     )
 
-    Text = Response.text
+    Text = Response.text.strip()
 
-    Lines = Text.split("\n")
-
-    Question = ""
-    Options = []
-    CorrectAnswer = ""
-    Explanation = ""
-
-    ExplanationMode = False
-
-    for Line in Lines:
-
-        Line = Line.strip()
-
-        if Line.startswith("Question:"):
-
-            Question = Line.replace("Question:", "").strip()
-
-        elif (
-            Line.startswith("A)")
-            or Line.startswith("B)")
-            or Line.startswith("C)")
-            or Line.startswith("D)")
-        ):
-
-            Options.append(Line)
-
-        elif Line.startswith("Correct Answer:"):
-
-            CorrectAnswer = (
-                Line.replace("Correct Answer:", "")
-                .strip()
-                .replace(")", "")
-            )
-
-        elif Line.startswith("Explanation:"):
-
-            ExplanationMode = True
-
-            Explanation = (
-                Line.replace("Explanation:", "")
-                .strip()
-            )
-
-        elif ExplanationMode:
-
-            Explanation += " " + Line
-
-    QuestionData = {
-        "Question": Question,
-        "Options": Options,
-        "CorrectAnswer": CorrectAnswer,
-        "Explanation": Explanation
-    }
-
-    SaveQuestion(
-        Topic,
-        Difficulty,
-        QuestionData
+    Text = (
+        Text
+        .replace("```json", "")
+        .replace("```", "")
+        .strip()
     )
 
-    return QuestionData
+    try:
 
+        Data = json.loads(Text)
+
+    except:
+
+        print(
+            "\nAI Returned Invalid Format ⚠️"
+        )
+
+        return {
+            "Topic": Topic,
+            "Difficulty": Difficulty,
+            "Question": "Fallback Question: What does print() do in Python?",
+            "Options": {
+                "A": "Takes input",
+                "B": "Prints output",
+                "C": "Creates loops",
+                "D": "Deletes variables"
+            },
+            "CorrectAnswer": "B",
+            "Explanation": "print() displays output."
+        }
+
+    QuestionData = {
+
+        "Topic": Topic,
+
+        "Difficulty": Difficulty,
+
+        "Question": Data["Question"],
+
+        "Options": Data["Options"],
+
+        "CorrectAnswer": Data["CorrectAnswer"],
+
+        "Explanation": Data["Explanation"]
+    }
+
+    SaveQuestion(QuestionData)
+
+    return QuestionData

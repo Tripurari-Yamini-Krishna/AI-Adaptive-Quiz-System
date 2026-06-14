@@ -1,35 +1,30 @@
 from Models.AiEngine import GenerateQuestion
-from Models.ExplanationEngine import GenerateExplanation
-from Reports.PerformanceTracker import SavePerformance
-from Reports.AnalyticsDashboard import GenerateDashboard
 
+from Models.AdaptiveEngine import (
+    GetAdaptiveDifficulty,
+    GetNextDifficulty
+)
 
-def UpdateDifficulty(CurrentDifficulty, IsCorrect):
+from Reports.PerformanceTracker import (
+    SavePerformance
+)
 
-    DifficultyLevels = ["Easy", "Medium", "Hard"]
+from Models.ExplanationEngine import (
+    GenerateExplanation
+)
 
-    CurrentIndex = DifficultyLevels.index(CurrentDifficulty)
-
-    if IsCorrect:
-
-        if CurrentIndex < 2:
-
-            return DifficultyLevels[CurrentIndex + 1]
-
-    else:
-
-        if CurrentIndex > 0:
-
-            return DifficultyLevels[CurrentIndex - 1]
-
-    return CurrentDifficulty
+import matplotlib.pyplot as plt
 
 
 def StartQuiz():
 
-    Topic = input("Enter Quiz Topic: ")
+    Topic = input(
+        "Enter Quiz Topic: "
+    )
 
-    Difficulty = input("Enter Difficulty (Easy/Medium/Hard): ")
+    Difficulty = input(
+        "Enter Difficulty (Easy/Medium/Hard): "
+    )
 
     Score = 0
 
@@ -37,79 +32,150 @@ def StartQuiz():
 
     WeakTopics = []
 
-    for QuestionNumber in range(1, TotalQuestions + 1):
+    AskedQuestions = []
 
-        print(f"\n========== Question {QuestionNumber} ==========")
+    Attempts = []
 
-        QuestionData = GenerateQuestion(Topic, Difficulty)
+    Scores = []
 
-        print("\nQuestion:")
+    for QuestionNumber in range(
+        1,
+        TotalQuestions + 1
+    ):
 
-        print(QuestionData["Question"])
+        print(
+            f"\n========== Question {QuestionNumber} =========="
+        )
+
+        QuestionData = GenerateQuestion(
+            Topic,
+            Difficulty,
+            AskedQuestions
+        )
+
+        AskedQuestions.append(
+            QuestionData["Question"]
+        )
+
+        print(
+            f"\nQuestion:\n{QuestionData['Question']}"
+        )
 
         print("\nOptions:")
 
-        for Option in QuestionData["Options"]:
+        for Key, Value in (
+            QuestionData["Options"].items()
+        ):
 
-            print(Option)
+            print(f"{Key}) {Value}")
 
-        UserAnswer = input("\nEnter Your Answer (A/B/C/D): ").upper()
+        UserAnswer = input(
+            "\nEnter Your Answer (A/B/C/D): "
+        ).upper()
 
-        CorrectAnswer = QuestionData["CorrectAnswer"]
+        CorrectAnswer = (
+            QuestionData["CorrectAnswer"]
+            .strip()
+            .upper()
+        )
 
         if UserAnswer == CorrectAnswer:
 
-            print("\nCorrect Answer 🎉")
+            print(
+                "\nCorrect Answer 🎉"
+            )
 
             Score += 1
 
-            Difficulty = UpdateDifficulty(Difficulty, True)
-
-            print(f"Difficulty Increased To: {Difficulty}")
+            Difficulty = (
+                GetNextDifficulty(
+                    Difficulty,
+                    True
+                )
+            )
 
         else:
 
-            print("\nWrong Answer ❌")
+            print(
+                "\nWrong Answer ❌"
+            )
 
-            print(f"\nCorrect Answer Was: {CorrectAnswer}")
+            print(
+                f"\nCorrect Answer Was: {CorrectAnswer}"
+            )
 
-            WeakTopics.append(Topic)
+            WeakTopics.append(
+                Topic
+            )
 
-            Difficulty = UpdateDifficulty(Difficulty, False)
-
-            print(f"Difficulty Decreased To: {Difficulty}")
+            Difficulty = (
+                GetNextDifficulty(
+                    Difficulty,
+                    False
+                )
+            )
 
         print("\nExplanation:")
 
-        print(QuestionData["Explanation"])
+        print(
+            QuestionData["Explanation"]
+        )
 
-    Percentage = (Score / TotalQuestions) * 100
+        CurrentPercentage = (
+            Score / QuestionNumber
+        ) * 100
 
-    print("\n========== FINAL RESULT ==========")
+        Attempts.append(
+            QuestionNumber
+        )
 
-    print(f"\nFinal Score: {Score}/{TotalQuestions}")
+        Scores.append(
+            CurrentPercentage
+        )
 
-    print(f"Percentage: {Percentage}%")
+    Percentage = (
+        Score / TotalQuestions
+    ) * 100
+
+    print(
+        "\n========== FINAL RESULT =========="
+    )
+
+    print(
+        f"\nFinal Score: {Score}/{TotalQuestions}"
+    )
+
+    print(
+        f"Percentage: {Percentage}%"
+    )
 
     if Percentage >= 80:
 
-        print("Excellent Performance 🔥")
-
-        RecommendedDifficulty = "Hard"
+        print(
+            "Excellent Performance 🔥"
+        )
 
     elif Percentage >= 50:
 
-        print("Good Job 👍")
-
-        RecommendedDifficulty = "Medium"
+        print(
+            "Good Job 😌"
+        )
 
     else:
 
-        print("Needs Improvement 📚")
+        print(
+            "Needs Improvement 📚"
+        )
 
-        RecommendedDifficulty = "Easy"
+    RecommendedDifficulty = (
+        GetAdaptiveDifficulty(
+            Percentage
+        )
+    )
 
-    print(f"\nRecommended Difficulty Level: {RecommendedDifficulty}")
+    print(
+        f"\nRecommended Difficulty Level: {RecommendedDifficulty}"
+    )
 
     SavePerformance(
         Topic,
@@ -118,19 +184,58 @@ def StartQuiz():
         Percentage
     )
 
+    plt.plot(
+        Attempts,
+        Scores,
+        marker="o"
+    )
+
+    plt.xlabel(
+        "Question Number"
+    )
+
+    plt.ylabel(
+        "Current Percentage"
+    )
+
+    plt.title(
+        "Live Quiz Performance"
+    )
+
+    plt.grid(True)
+
+    plt.show()
+
     if len(WeakTopics) > 0:
 
-        print("\nWeak Topics Detected:")
+        print(
+            "\nWeak Topics Detected:"
+        )
 
-        for WeakTopic in set(WeakTopics):
+        for WeakTopic in set(
+            WeakTopics
+        ):
 
-            print(f"\nTopic: {WeakTopic}")
+            print(
+                f"\nTopic: {WeakTopic}"
+            )
 
-            print("\nAI Explanation:")
+            print(
+                "\nAI Explanation:"
+            )
 
-            Explanation = GenerateExplanation(WeakTopic)
+            try:
 
-            print(Explanation)
+                Explanation = (
+                    GenerateExplanation(
+                        WeakTopic
+                    )
+                )
 
-    GenerateDashboard()
+                print(Explanation)
 
+            except:
+
+                print("Explanation Service Busy Right Now ⚠️")
+
+                
