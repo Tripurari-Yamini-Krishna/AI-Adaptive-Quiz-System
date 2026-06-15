@@ -24,7 +24,8 @@ def GenerateQuestion(
 
     SavedQuestion = GetRandomQuestion(
         Topic,
-        Difficulty
+        Difficulty,
+        AskedQuestions
     )
 
     if (
@@ -47,20 +48,34 @@ def GenerateQuestion(
 
     Difficulty: {Difficulty}
 
-    Return ONLY valid JSON.
+    Previously Asked Questions:
+    {AskedQuestions}
 
-    Example format:
+    IMPORTANT RULES:
+    - Do NOT repeat previous questions
+    - Do NOT ask similar questions
+    - Avoid common beginner questions repeatedly
+    - Make each question fresh and different
+    - All 4 options must contain actual text
+    - Return ONLY valid JSON
+    - No markdown
+    - No code blocks
+
+    JSON Format:
 
     {{
-        "Question": "What is Python?",
+        "Question": "question here",
+
         "Options": {{
-            "A": "A snake",
-            "B": "A programming language",
-            "C": "A game",
-            "D": "A browser"
+            "A": "option text",
+            "B": "option text",
+            "C": "option text",
+            "D": "option text"
         }},
-        "CorrectAnswer": "B",
-        "Explanation": "Python is a programming language."
+
+        "CorrectAnswer": "A",
+
+        "Explanation": "explanation here"
     }}
     """
 
@@ -85,21 +100,29 @@ def GenerateQuestion(
     except:
 
         print(
-            "\nAI Returned Invalid Format ⚠️"
+            "\nAI Returned Invalid JSON ⚠️"
         )
 
-        return {
-            "Topic": Topic,
-            "Difficulty": Difficulty,
-            "Question": "Fallback Question: What does print() do in Python?",
+        Data = {
+
+            "Question":
+            "What does print() do in Python?",
+
             "Options": {
+
                 "A": "Takes input",
+
                 "B": "Prints output",
+
                 "C": "Creates loops",
+
                 "D": "Deletes variables"
             },
+
             "CorrectAnswer": "B",
-            "Explanation": "print() displays output."
+
+            "Explanation":
+            "print() displays output on the screen."
         }
 
     QuestionData = {
@@ -117,6 +140,9 @@ def GenerateQuestion(
         "Explanation": Data["Explanation"]
     }
 
-    SaveQuestion(QuestionData)
+    SaveQuestion(
+        QuestionData
+    )
 
     return QuestionData
+

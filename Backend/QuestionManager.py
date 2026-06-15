@@ -1,10 +1,10 @@
 import json
 import random
 
+FilePath = "QuestionBank/Questions.json"
+
 
 def SaveQuestion(QuestionData):
-
-    FilePath = "QuestionBank/Questions.json"
 
     try:
 
@@ -20,12 +20,18 @@ def SaveQuestion(QuestionData):
 
     with open(FilePath, "w") as File:
 
-        json.dump(Questions, File, indent=4)
+        json.dump(
+            Questions,
+            File,
+            indent=4
+        )
 
 
-def LoadQuestions(Topic, Difficulty):
-
-    FilePath = "QuestionBank/Questions.json"
+def GetRandomQuestion(
+    Topic,
+    Difficulty,
+    AskedQuestions
+):
 
     try:
 
@@ -35,29 +41,38 @@ def LoadQuestions(Topic, Difficulty):
 
     except:
 
-        return []
+        return None
 
     FilteredQuestions = []
 
     for Question in Questions:
 
         if (
-            Question["Topic"].lower() == Topic.lower()
+
+            Question["Topic"].lower()
+            ==
+            Topic.lower()
+
             and
-            Question["Difficulty"].lower() == Difficulty.lower()
+
+            Question["Difficulty"].lower()
+            ==
+            Difficulty.lower()
+
+            and
+
+            Question["Question"]
+            not in AskedQuestions
         ):
 
-            FilteredQuestions.append(Question)
+            FilteredQuestions.append(
+                Question
+            )
 
-    return FilteredQuestions
-
-
-def GetRandomQuestion(Topic, Difficulty):
-
-    Questions = LoadQuestions(Topic, Difficulty)
-
-    if len(Questions) == 0:
+    if len(FilteredQuestions) == 0:
 
         return None
 
-    return random.choice(Questions)
+    return random.choice(
+        FilteredQuestions
+    )
